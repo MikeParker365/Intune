@@ -298,8 +298,11 @@ $myDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 $logfile = "$myDir\Export-SettingsCatalogPolicies.log"
 
-$start = Get-Date
+if($null -eq $ExportPath){
+    $ExportPath = $myDir
+}
 
+$start = Get-Date
 ############################################################################
 # Variables End
 ############################################################################
