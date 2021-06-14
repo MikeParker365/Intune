@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
 Export policy settings from Intune from Settings Catalog Policies
 
@@ -101,22 +101,22 @@ function Get-AuthToken {
     
 	$tenant = $userUpn.Host
     
-	Write-Host "Checking for AzureAD module..."
+	Write-LogFile "Checking for AzureAD module..."
     
 	$AadModule = Get-Module -Name "AzureAD" -ListAvailable
     
 	if ($AadModule -eq $null) {
     
-		Write-Host "AzureAD PowerShell module not found, looking for AzureADPreview"
+		Write-LogFile "AzureAD PowerShell module not found, looking for AzureADPreview"
 		$AadModule = Get-Module -Name "AzureADPreview" -ListAvailable
     
 	}
     
 	if ($AadModule -eq $null) {
 		write-host
-		write-host "AzureAD Powershell module not installed..." -f Red
-		write-host "Install by running 'Install-Module AzureAD' or 'Install-Module AzureADPreview' from an elevated PowerShell prompt" -f Yellow
-		write-host "Script can't continue..." -f Red
+		Write-LogFile "AzureAD Powershell module not installed..." -f Red
+		Write-LogFile "Install by running 'Install-Module AzureAD' or 'Install-Module AzureADPreview' from an elevated PowerShell prompt" -f Yellow
+		Write-LogFile "Script can't continue..." -f Red
 		write-host
 		exit
 	}
@@ -194,7 +194,7 @@ function Get-AuthToken {
 		else {
     
 			Write-Host
-			Write-Host "Authorization Access Token is null, please re-run authentication..." -ForegroundColor Red
+			Write-LogFile "Authorization Access Token is null, please re-run authentication..." -ForegroundColor Red
 			Write-Host
 			break
     
@@ -204,8 +204,8 @@ function Get-AuthToken {
     
 	catch {
     
-		write-host $_.Exception.Message -f Red
-		write-host $_.Exception.ItemName -f Red
+		Write-LogFile $_.Exception.Message -f Red
+		Write-LogFile $_.Exception.ItemName -f Red
 		write-host
 		break
     
@@ -239,19 +239,19 @@ Function Export-JSONData() {
         
 		if ($JSON -eq "" -or $JSON -eq $null) {
         
-			write-host "No JSON specified, please specify valid JSON..." -f Red
+			Write-LogFile "No JSON specified, please specify valid JSON..." -f Red
         
 		}
         
 		elseif (!$ExportPath) {
         
-			write-host "No export path parameter set, please provide a path to export the file" -f Red
+			Write-LogFile "No export path parameter set, please provide a path to export the file" -f Red
         
 		}
         
 		elseif (!(Test-Path $ExportPath)) {
         
-			write-host "$ExportPath doesn't exist, can't export JSON Data" -f Red
+			Write-LogFile "$ExportPath doesn't exist, can't export JSON Data" -f Red
         
 		}
         
@@ -268,10 +268,10 @@ Function Export-JSONData() {
         
 			$FileName_JSON = "$DisplayName" + "_" + $(get-date -f dd-MM-yyyy-H-mm-ss) + ".json"
         
-			write-host "Export Path:" "$ExportPath"
+			Write-LogFile "Export Path:" "$ExportPath"
         
 			$JSON1 | Set-Content -LiteralPath "$ExportPath\$FileName_JSON"
-			write-host "JSON created in $ExportPath\$FileName_JSON..." -f cyan
+			Write-LogFile "JSON created in $ExportPath\$FileName_JSON..." -f cyan
                     
 		}
         
@@ -296,7 +296,7 @@ Function Export-JSONData() {
 
 $myDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-$logfile = "$myDir\Add-SMTPAddresses.log"
+$logfile = "$myDir\Export-SettingsCatalogPolicies.log"
 
 $start = Get-Date
 
@@ -328,7 +328,7 @@ if ($global:authToken) {
 
 	if ($TokenExpires -le 0) {
 
-		write-host "Authentication Token expired" $TokenExpires "minutes ago" -ForegroundColor Yellow
+		Write-LogFile "Authentication Token expired" $TokenExpires "minutes ago" -ForegroundColor Yellow
 		write-host
 
 		# Defining User Principal Name if not present
